@@ -1,0 +1,13 @@
+import nodemailer from "nodemailer";
+import { MAIL_HOST, MAIL_PASS, MAIL_PORT, MAIL_USER } from "./env";
+
+const smtpConfig = {
+  host: MAIL_HOST,
+  port: MAIL_PORT,
+  secure: true,
+  auth: {
+    user: MAIL_USER,
+    pass: MAIL_PASS,
+  },
+};
+export const mailTransport = nodemailer.createTransport(smtpConfig);
