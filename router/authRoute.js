@@ -9,6 +9,19 @@ const route = express.Router();
 
 route.post("/register", authValidate.register, authController.register);
 route.post("/login", authValidate.login, authController.login);
+route.delete("/admin/:token", authController.confirmDelete);
+
+route.post(
+  "/forgot-password",
+  authValidate.forgotPassword,
+  authController.forgotPassword
+);
+route.patch(
+  "/reset-password/:token",
+  authValidate.resetPassword,
+  authController.resetPassword
+);
+
 
 // Private methods
 route.patch(
@@ -20,14 +33,23 @@ route.patch(
 route.get(
   "/user",
   verifyUser,
-  allowRoles([Role.ADMIN]),
+  allowRoles([Role.ADMIN, Role.HR]),
   authController.getUser
 );
 route.delete(
-  "/user/:userId",
+  "/user/:id?",
   verifyUser,
   allowRoles([Role.ADMIN]),
   authController.delete
+);
+route.patch("/user/:id?", verifyUser, authValidate.patch, authController.patch);
+
+route.patch(
+  "/user/role/:userId",
+  verifyUser,
+  allowRoles([Role.ADMIN]),
+  authValidate.changeRole,
+  authController.changeRole
 );
 
 export default route;
