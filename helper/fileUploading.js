@@ -1,8 +1,9 @@
 import fs from "fs/promises";
 import { join } from "path";
 import { SERVER_BASE_URL } from "../config/env.js";
+import { fileTypeFromBuffer } from "file-type";
 
-const isValidURL = (string) => {
+export const isValidURL = (string) => {
   var res = string.match(
     /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g
   );
@@ -11,8 +12,10 @@ const isValidURL = (string) => {
 
 export const handleFile = async (imageData, file) => {
   const imageBuffer = Buffer.from(imageData, "base64");
+  const { ext } = await fileTypeFromBuffer(imageBuffer);
+  const fileExt = ext === "xml" ? "svg" : ext === "cfb" ? "xls" : ext;
   const timestamp = Date.now();
-  const filename = `${file}_${timestamp}.jpg`;
+  const filename = `${file}_${timestamp}.${fileExt}`;
   const imagePath = join(process.cwd(), "uploads", file, filename);
   await fs.writeFile(imagePath, imageBuffer);
   const imageUrl = `${SERVER_BASE_URL}/uploads/${file}/${filename}`;

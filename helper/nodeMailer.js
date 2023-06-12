@@ -3,7 +3,7 @@ import fs from "fs";
 import { join } from "path";
 import { MAIL_FROM } from "../config/env.js";
 
-export const sendMail = async (to, subject, dynamicData, filename) => {
+export const sendMail = async ({ to, subject, dynamicData, filename }) => {
   let html = fs.readFileSync(
     join(process.cwd(), "pages", "mail", filename),
     "utf-8"
@@ -13,7 +13,7 @@ export const sendMail = async (to, subject, dynamicData, filename) => {
     html = html.replace(regex, dynamicData[key]);
   });
 
-  const result = await mailTransport.sendMail(
+  const result = mailTransport.sendMail(
     {
       from: MAIL_FROM,
       to,
@@ -22,7 +22,11 @@ export const sendMail = async (to, subject, dynamicData, filename) => {
     },
     async (err, info) => {
       if (err) {
+        console.log("err: ", err.message);
         return err.message;
+      } else {
+        console.log(`mail successfully sent on ${info.accepted[0]}`);
+        return info;
       }
     }
   );

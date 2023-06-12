@@ -30,7 +30,7 @@ export const errorResponse = async ({
     statusCode = 401;
   }
   if (error.name === "MongoServerError" && error.code === 11000) {
-    message = "document already exists";
+    message = "Document already exists";
   } else if (error.name === "JsonWebTokenError") {
     message = "Invalid token";
     statusCode = 401;

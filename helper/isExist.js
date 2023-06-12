@@ -16,4 +16,6 @@ export const isExist = async (res, id, Model) => {
 
   const result = await Model.findById(id);
   if (result === null) return validateResponse(res, errObj);
+
+  return result;
 };

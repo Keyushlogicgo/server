@@ -1,10 +1,10 @@
 import nodemailer from "nodemailer";
-import { MAIL_HOST, MAIL_PASS, MAIL_PORT, MAIL_USER } from "./env";
+import { MAIL_HOST, MAIL_PASS, MAIL_PORT, MAIL_USER } from "./env.js";
 
 const smtpConfig = {
   host: MAIL_HOST,
   port: MAIL_PORT,
-  secure: true,
+  secure: false,
   auth: {
     user: MAIL_USER,
     pass: MAIL_PASS,
