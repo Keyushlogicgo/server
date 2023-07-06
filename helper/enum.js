@@ -3,6 +3,7 @@ export const userRole = {
   EMPLOYEE: "employee",
   CANDIDATE: "candidate",
   HR: "hr",
+  ASO: "aso",
 };
 export const status = {
   COMPLETED: "completed",

@@ -5,7 +5,7 @@ import AuthModel from "../model/auth/authModel.js";
 const errObj = {
   details: [
     {
-      path: "Token",
+      path: "authorization",
       message: "Authorization credential ware not found or invalid",
     },
   ],
@@ -19,9 +19,10 @@ export const verifyUser = async (req, res, next) => {
       return validateResponse(res, errObj);
 
     const { userId } = await verifyToken(authorization.split(" ")[1]);
-    const user = (await AuthModel.findById(userId)).toObject();
-    if (!user) return validateResponse(res, errObj);
+    let user = await AuthModel.findById(userId);
 
+    if (!user) return validateResponse(res, errObj);
+    user = user.toObject();
     delete user.password;
     req.user = user;
 

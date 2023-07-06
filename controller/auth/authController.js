@@ -32,7 +32,7 @@ class authController {
       const result = await doc.save();
       await sendMail({
         to: result.email,
-        subject: "Welcome to logicgo Infotech",
+        subject: "Welcome to virani Infotech",
         dynamicData: { email: result.username },
         filename: "welcome.html",
       });
@@ -213,7 +213,8 @@ class authController {
     try {
       const result = await AuthModel.find()
         .skip(pagination.skip)
-        .limit(pagination.limit).sort({ createdAt: -1 });
+        .limit(pagination.limit)
+        .sort({ createdAt: -1 });
       const count = await AuthModel.estimatedDocumentCount();
       return successResponse({
         res,

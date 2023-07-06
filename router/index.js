@@ -1,3 +1,9 @@
-import authRoute from "./authRoute.js";
+import authRoute from "./auth/authRoute.js";
+import technologyRoute from "./master/technologyRoute.js";
 
-export { authRoute };
+
+export {
+  authRoute,
+  technologyRoute,
+
+};

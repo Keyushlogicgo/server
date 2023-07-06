@@ -25,18 +25,16 @@ export const handleMultiFile = async (imageData, file) => {
   const imageArray = [];
   for (let i = 0; i < imageData.length; i++) {
     var imageBaseCode = imageData[i];
-    const isUrl = isValidURL(imageBaseCode);
-    if (isUrl) {
-      imageArray.push(imageBaseCode);
-    } else {
-      var imageBuffer = Buffer.from(imageBaseCode, "base64");
-      var timestamp = Date.now();
-      var filename = `${file}_${timestamp}.jpg`;
-      var imagePath = join(process.cwd(), "uploads", file, filename);
-      await fs.writeFile(imagePath, imageBuffer);
-      var imageUrl = `${SERVER_BASE_URL}/uploads/${file}/${filename}`;
-      imageArray.push(imageUrl);
-    }
+    var imageBuffer = Buffer.from(imageBaseCode, "base64");
+    var { ext } = await fileTypeFromBuffer(imageBuffer);
+    var fileExt = ext === "xml" ? "svg" : ext === "cfb" ? "xls" : ext;
+    var timestamp = Date.now();
+    var filename = `${file}_${timestamp}.${fileExt}`;
+    var imagePath = join(process.cwd(), "uploads", file, filename);
+    await fs.writeFile(imagePath, imageBuffer);
+    var imageUrl = `${SERVER_BASE_URL}/uploads/${file}/${filename}`;
+
+    imageArray.push(imageUrl);
   }
   return imageArray;
 };
@@ -45,4 +43,15 @@ export const handleFileRemove = async (imageUrl, file) => {
   const imageName = imageUrl.split("/").slice(-1)[0];
   const imagePath = join(process.cwd(), "uploads", file, imageName);
   await fs.unlink(imagePath);
+};
+
+export const handleMultiFileRemove = async (data, file) => {
+  for (let i = 0; i < data.length; i++) {
+    const imageUrl = data[i];
+    const imageName = imageUrl.split("/").slice(-1)[0];
+    const imagePath = join(process.cwd(), "uploads", file, imageName);
+    if (imagePath) {
+      await fs.unlink(imagePath);
+    }
+  }
 };

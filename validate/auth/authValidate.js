@@ -5,6 +5,11 @@ import AuthModel from "../../model/auth/authModel.js";
 import { comparePasswords } from "../../helper/bcryptPassword.js";
 import { userRole as Role } from "../../helper/enum.js";
 import { verifyToken } from "../../helper/jwtToken.js";
+import failAttemptModel from "../../model/auth/failAttemptModel.js";
+import {
+  failAttemp,
+  fileAttemptMessage,
+} from "../../controller/auth/failAttempController.js";
 
 const options = {
   abortEarly: false,
@@ -40,7 +45,7 @@ class authValidate {
     const validateSchema = Joi.object().keys({
       role: Joi.string()
         .required()
-        .valid(Role.ADMIN, Role.CANDIDATE, Role.EMPLOYEE, Role.HR)
+        .valid(Role.ADMIN, Role.CANDIDATE, Role.EMPLOYEE, Role.HR, Role.ASO)
         .label("role")
         .messages(validateMsg(null, null, "role")),
     });
@@ -81,7 +86,7 @@ class authValidate {
     if (error) return validateResponse(res, error);
 
     const { email, password } = req.body;
-    const errObj = {
+    let errObj = {
       details: [
         {
           path: "email",
@@ -90,10 +95,29 @@ class authValidate {
       ],
     };
     let user = await AuthModel.findOne({ email: email });
+
     if (!user) return validateResponse(res, errObj);
 
+    const attemptData = await failAttemptModel.findOne({ userId: user._id });
+
+    if (attemptData) {
+      if (new Date() < attemptData?.time) {
+        errObj.details[0].message = fileAttemptMessage(attemptData?.time);
+        return validateResponse(res, errObj);
+      }
+    }
+
     const verifyPassword = await comparePasswords(password, user.password);
-    if (!verifyPassword) return validateResponse(res, errObj);
+
+    if (!verifyPassword) {
+      const result = await failAttemp(res, user._id);
+      if (result.count >= 3) {
+        errObj.details[0].message = fileAttemptMessage(result?.time);
+      }
+      return validateResponse(res, errObj);
+    } else {
+      await failAttemptModel.findOneAndDelete({ userId: user._id });
+    }
 
     user = user.toObject();
     delete user.password;
